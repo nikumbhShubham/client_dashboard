@@ -65,7 +65,7 @@ def login_account_sdk(acc):
     Login one 5paisa account using py5paisa SDK get_totp_session()
     Exact same approach as backend/app/services/login/fivepaisa_simple_login.py
     """
-    name = acc.get("NAME", "Unknown")
+    name = acc.get("display_name", acc.get("NAME", "Unknown"))
     client_code = str(acc.get("client_code", ""))
 
     if not client_code:
@@ -73,14 +73,15 @@ def login_account_sdk(acc):
         return None
 
     try:
-        # MongoDB stores fields with same names as the SDK credential dict
+        # Support both nested credentials format and flat format
+        creds_obj = acc.get("credentials", {})
         cred = {
-            "APP_NAME": acc.get("APP_NAME", ""),
-            "APP_SOURCE": str(acc.get("APP_SOURCE", "")),
-            "USER_ID": acc.get("USER_ID", ""),
-            "PASSWORD": acc.get("PASSWORD", ""),
-            "USER_KEY": acc.get("USER_KEY", ""),
-            "ENCRYPTION_KEY": acc.get("ENCRYPTION_KEY", ""),
+            "APP_NAME": creds_obj.get("APP_NAME", acc.get("APP_NAME", "")),
+            "APP_SOURCE": str(creds_obj.get("APP_SOURCE", acc.get("APP_SOURCE", ""))),
+            "USER_ID": creds_obj.get("USER_ID", acc.get("USER_ID", "")),
+            "PASSWORD": creds_obj.get("PASSWORD", acc.get("PASSWORD", "")),
+            "USER_KEY": creds_obj.get("USER_KEY", acc.get("USER_KEY", "")),
+            "ENCRYPTION_KEY": creds_obj.get("ENCRYPTION_KEY", acc.get("ENCRYPTION_KEY", "")),
         }
 
         totp_secret = acc.get("totp_secret", "")

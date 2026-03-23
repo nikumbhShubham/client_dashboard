@@ -24,7 +24,7 @@ def login_account(acc):
     Login one 5paisa account using py5paisa SDK get_totp_session()
     Returns account info dict or None on failure.
     """
-    name = acc.get("NAME", "Unknown")
+    name = acc.get("display_name", acc.get("NAME", "Unknown"))
     client_code = str(acc.get("client_code", ""))
 
     if not client_code:
@@ -32,13 +32,15 @@ def login_account(acc):
         return None
 
     try:
+        # Support both nested credentials format and flat format
+        creds_obj = acc.get("credentials", {})
         cred = {
-            "APP_NAME": acc.get("APP_NAME", ""),
-            "APP_SOURCE": str(acc.get("APP_SOURCE", "")),
-            "USER_ID": acc.get("USER_ID", ""),
-            "PASSWORD": acc.get("PASSWORD", ""),
-            "USER_KEY": acc.get("USER_KEY", ""),
-            "ENCRYPTION_KEY": acc.get("ENCRYPTION_KEY", ""),
+            "APP_NAME": creds_obj.get("APP_NAME", acc.get("APP_NAME", "")),
+            "APP_SOURCE": str(creds_obj.get("APP_SOURCE", acc.get("APP_SOURCE", ""))),
+            "USER_ID": creds_obj.get("USER_ID", acc.get("USER_ID", "")),
+            "PASSWORD": creds_obj.get("PASSWORD", acc.get("PASSWORD", "")),
+            "USER_KEY": creds_obj.get("USER_KEY", acc.get("USER_KEY", "")),
+            "ENCRYPTION_KEY": creds_obj.get("ENCRYPTION_KEY", acc.get("ENCRYPTION_KEY", "")),
         }
 
         totp_secret = acc.get("totp_secret", "")
@@ -115,7 +117,7 @@ def login_all_accounts(account_docs, max_retries=3, retry_delay=5):
         failed = still_failed
 
     if failed:
-        failed_names = [acc.get("NAME", "?") for acc in failed]
+        failed_names = [acc.get("display_name", acc.get("NAME", "?")) for acc in failed]
         logger.warning(f"⚠️ Still failed after {max_retries} retries: {', '.join(failed_names)}")
 
     logger.info(f"🎯 Successfully logged into {len(accounts)}/{len(account_docs)} accounts")

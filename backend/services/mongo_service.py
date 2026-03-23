@@ -38,30 +38,61 @@ def get_account_by_client_code(client_code):
 def add_account(data):
     """
     Insert a new account into MongoDB.
-    Expected fields: NAME, APP_NAME, APP_SOURCE, USER_ID, PASSWORD,
-                     USER_KEY, ENCRYPTION_KEY, totp_secret, mpin, client_code
+    Accepts either nested format (credentials sub-object) or flat format.
+    New document format:
+      { credentials: {APP_NAME, APP_SOURCE, USER_ID, PASSWORD, USER_KEY, ENCRYPTION_KEY},
+        totp_secret, mpin, client_code, display_name, is_active, lot_multiplier }
     """
-    required_fields = [
-        "NAME", "APP_NAME", "APP_SOURCE", "USER_ID", "PASSWORD",
-        "USER_KEY", "ENCRYPTION_KEY", "totp_secret", "mpin", "client_code"
-    ]
+    # Support both nested and flat payload formats
+    creds = data.get("credentials", {})
+    credential_fields = ["APP_NAME", "APP_SOURCE", "USER_ID", "PASSWORD", "USER_KEY", "ENCRYPTION_KEY"]
 
-    missing = [f for f in required_fields if not data.get(f)]
+    # If credentials sub-object is provided, use it; otherwise read flat fields
+    for f in credential_fields:
+        if not creds.get(f):
+            creds[f] = data.get(f, "")
+
+    display_name = data.get("display_name", data.get("NAME", ""))
+    totp_secret = data.get("totp_secret", "")
+    mpin = data.get("mpin", "")
+    client_code = data.get("client_code", "")
+
+    # Validate all required fields
+    missing = []
+    for f in credential_fields:
+        if not creds.get(f):
+            missing.append(f"credentials.{f}")
+    if not display_name:
+        missing.append("display_name")
+    if not totp_secret:
+        missing.append("totp_secret")
+    if not mpin:
+        missing.append("mpin")
+    if not client_code:
+        missing.append("client_code")
+
     if missing:
         raise ValueError(f"Missing required fields: {', '.join(missing)}")
 
     # Check if client_code already exists
-    existing = get_account_by_client_code(data["client_code"])
+    existing = get_account_by_client_code(client_code)
     if existing:
-        raise ValueError(f"Account with client_code {data['client_code']} already exists")
+        raise ValueError(f"Account with client_code {client_code} already exists")
 
     try:
         db = get_mongo_db()
-        # Only store the required fields (clean insert)
-        doc = {field: str(data[field]) for field in required_fields}
+        doc = {
+            "credentials": {f: str(creds[f]) for f in credential_fields},
+            "totp_secret": str(totp_secret),
+            "mpin": str(mpin),
+            "client_code": str(client_code),
+            "display_name": str(display_name),
+            "is_active": data.get("is_active", True),
+            "lot_multiplier": data.get("lot_multiplier", 1),
+        }
         result = db["users"].insert_one(doc)
         doc["_id"] = str(result.inserted_id)
-        logger.info(f"Added account: {doc['NAME']} ({doc['client_code']})")
+        logger.info(f"Added account: {doc['display_name']} ({doc['client_code']})")
         return doc
     except Exception as e:
         logger.error(f"Failed to add account: {e}")

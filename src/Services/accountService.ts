@@ -1,17 +1,23 @@
 import apiClient from './api';
 
-// Account types matching MongoDB schema
-export interface AccountCreateData {
-  NAME: string;
+// Account types matching MongoDB schema (nested credentials format)
+export interface AccountCredentials {
   APP_NAME: string;
   APP_SOURCE: string;
   USER_ID: string;
   PASSWORD: string;
   USER_KEY: string;
   ENCRYPTION_KEY: string;
+}
+
+export interface AccountCreateData {
+  credentials: AccountCredentials;
   totp_secret: string;
   mpin: string;
   client_code: string;
+  display_name: string;
+  is_active: boolean;
+  lot_multiplier: number;
 }
 
 export interface ValidationResponse {

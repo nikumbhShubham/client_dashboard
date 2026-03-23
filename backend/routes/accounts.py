@@ -24,7 +24,7 @@ def list_accounts():
             "account_id": cc,
             "owner_id": 1,
             "broker_name": "FIVEPAISA",
-            "nickname": doc.get("NAME", ""),
+            "nickname": doc.get("display_name", doc.get("NAME", "")),
             "trading_login_id": cc,
             "is_enabled": is_logged_in,
             "is_validated": is_logged_in,
@@ -60,7 +60,7 @@ def create_account():
             "account_id": doc.get("client_code", ""),
             "owner_id": 1,
             "broker_name": "FIVEPAISA",
-            "nickname": doc.get("NAME", ""),
+            "nickname": doc.get("display_name", doc.get("NAME", "")),
             "trading_login_id": doc.get("client_code", ""),
             "is_enabled": logged_in,
             "is_validated": logged_in,
@@ -105,7 +105,7 @@ def validate_account():
         if result:
             return jsonify({
                 "valid": True,
-                "message": f"Login successful for {data.get('NAME', 'account')}",
+                "message": f"Login successful for {data.get('display_name', data.get('NAME', 'account'))}",
                 "broker": "FIVEPAISA"
             })
         else:

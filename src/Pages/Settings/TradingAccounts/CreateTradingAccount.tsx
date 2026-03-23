@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input, Button, Row, Col, Card, message } from "antd";
+import { Input, Button, Row, Col, Card, message, InputNumber } from "antd";
 import { CheckOutlined, SaveOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { accountService } from "../../../Services/accountService";
@@ -15,8 +15,8 @@ const CreateTradingAccount: React.FC = () => {
   const navigate = useNavigate();
   const addAccount = useAccountStore((state) => state.addAccount);
 
-  // Fields matching MongoDB schema exactly
-  const [name, setName] = useState("");
+  // Fields matching new MongoDB schema
+  const [displayName, setDisplayName] = useState("");
   const [appName, setAppName] = useState("");
   const [appSource, setAppSource] = useState("");
   const [userId, setUserId] = useState("");
@@ -26,30 +26,45 @@ const CreateTradingAccount: React.FC = () => {
   const [totpSecret, setTotpSecret] = useState("");
   const [mpin, setMpin] = useState("");
   const [clientCode, setClientCode] = useState("");
+  const [lotMultiplier, setLotMultiplier] = useState(1);
 
   const [validating, setValidating] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const buildPayload = () => ({
-    NAME: name,
-    APP_NAME: appName,
-    APP_SOURCE: appSource,
-    USER_ID: userId,
-    PASSWORD: password,
-    USER_KEY: userKey,
-    ENCRYPTION_KEY: encryptionKey,
+    credentials: {
+      APP_NAME: appName,
+      APP_SOURCE: appSource,
+      USER_ID: userId,
+      PASSWORD: password,
+      USER_KEY: userKey,
+      ENCRYPTION_KEY: encryptionKey,
+    },
     totp_secret: totpSecret,
     mpin: mpin,
     client_code: clientCode,
+    display_name: displayName,
+    is_active: true,
+    lot_multiplier: lotMultiplier,
   });
 
   const handleValidate = async () => {
     // Basic frontend validation
     const payload = buildPayload();
-    const missing = Object.entries(payload)
-      .filter(([_, v]) => !v)
-      .map(([k]) => k);
+    const missing: string[] = [];
+
+    if (!payload.display_name) missing.push("Display Name");
+    if (!payload.client_code) missing.push("Client Code");
+    if (!payload.totp_secret) missing.push("TOTP Secret");
+    if (!payload.mpin) missing.push("MPIN");
+    const creds = payload.credentials;
+    if (!creds.APP_NAME) missing.push("App Name");
+    if (!creds.APP_SOURCE) missing.push("App Source");
+    if (!creds.USER_ID) missing.push("User ID");
+    if (!creds.PASSWORD) missing.push("Password");
+    if (!creds.USER_KEY) missing.push("User Key");
+    if (!creds.ENCRYPTION_KEY) missing.push("Encryption Key");
 
     if (missing.length > 0) {
       message.error(`Missing fields: ${missing.join(", ")}`);
@@ -91,21 +106,34 @@ const CreateTradingAccount: React.FC = () => {
     <div style={{ padding: 24 }}>
       <h1>Add 5paisa Trading Account</h1>
       <Card title="5paisa Credentials" style={{ maxWidth: 600 }}>
-        <div style={labelStyle}>Account Name</div>
+        <div style={labelStyle}>Display Name</div>
         <Input
-          placeholder="e.g. Shubham Trading"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. John Doe"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
           style={{ marginBottom: 16 }}
         />
 
-        <div style={labelStyle}>Client Code</div>
-        <Input
-          placeholder="e.g. 54140910"
-          value={clientCode}
-          onChange={(e) => setClientCode(e.target.value)}
-          style={{ marginBottom: 16 }}
-        />
+        <Row gutter={16}>
+          <Col span={12}>
+            <div style={labelStyle}>Client Code</div>
+            <Input
+              placeholder="e.g. 54140910"
+              value={clientCode}
+              onChange={(e) => setClientCode(e.target.value)}
+              style={{ marginBottom: 16 }}
+            />
+          </Col>
+          <Col span={12}>
+            <div style={labelStyle}>Lot Multiplier</div>
+            <InputNumber
+              min={1}
+              value={lotMultiplier}
+              onChange={(val) => setLotMultiplier(val || 1)}
+              style={{ width: "100%", marginBottom: 16 }}
+            />
+          </Col>
+        </Row>
 
         <Row gutter={16}>
           <Col span={12}>
