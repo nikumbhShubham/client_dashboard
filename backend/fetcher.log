@@ -1,0 +1,22 @@
+2026-02-25 18:42:53,754 [INFO] Attempt 1: Login for 51289806 (TOTP: 436196)
+2026-02-25 18:42:55,069 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin "HTTP/1.1 200 OK"
+2026-02-25 18:42:55,135 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/GetAccessToken "HTTP/1.1 200 OK"
+2026-02-25 18:42:55,136 [WARNING] Unexpected login response type: <class 'NoneType'>
+2026-02-25 18:42:57,137 [INFO] Attempt 2: Login for 51289806 (TOTP: 436196)
+2026-02-25 18:42:57,416 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin "HTTP/1.1 200 OK"
+2026-02-25 18:42:57,510 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/GetAccessToken "HTTP/1.1 200 OK"
+2026-02-25 18:42:57,513 [WARNING] Unexpected login response type: <class 'NoneType'>
+2026-02-25 18:42:59,513 [INFO] Attempt 3: Login for 51289806 (TOTP: 436196)
+2026-02-25 18:42:59,722 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin "HTTP/1.1 200 OK"
+2026-02-25 18:42:59,800 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/GetAccessToken "HTTP/1.1 200 OK"
+2026-02-25 18:42:59,800 [WARNING] Unexpected login response type: <class 'NoneType'>
+2026-02-25 18:44:01,804 [INFO] Attempt 1: Login for 51289806 (TOTP: 109016)
+2026-02-25 18:44:02,111 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin "HTTP/1.1 200 OK"
+2026-02-25 18:44:02,113 [WARNING] Unexpected login response type: <class 'NoneType'>
+2026-02-25 18:44:04,114 [INFO] Attempt 2: Login for 51289806 (TOTP: 109016)
+2026-02-25 18:47:02,180 [INFO] Attempting login for User: 51289806
+2026-02-25 18:47:02,182 [INFO] Generated TOTP: 161044
+2026-02-25 18:47:02,539 [INFO] HTTP Request: POST https://openapi.5paisa.com/VendorsAPI/Service1.svc/TOTPLogin "HTTP/1.1 200 OK"
+2026-02-25 18:47:02,541 [INFO] Login Response: None
+2026-02-25 18:47:02,542 [ERROR] Login Failed: Access token not found in client.
+2026-02-25 18:47:02,542 [WARNING] Startup login failed. Will need to re-auth.
